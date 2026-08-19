@@ -4,10 +4,22 @@
   "short_name": "Kover",
   "description": "Outil de calcul de revêtements muraux pour les équipes magasin.",
   "start_url": "./index.html",
+  "scope": "./",
+  "lang": "fr",
+  "dir": "ltr",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "minimal-ui"],
   "background_color": "#545454",
   "theme_color": "#545454",
   "orientation": "portrait-primary",
+  "categories": ["business", "productivity", "utilities"],
+  "prefer_related_applications": false,
+  "launch_handler": {
+    "client_mode": ["focus-existing", "auto"]
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
   "icons": [
     {
       "src": "./icone-192.png",
