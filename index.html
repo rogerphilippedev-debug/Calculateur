@@ -1086,7 +1086,20 @@
             ['rouleauLong', 'rouleauLarg', 'motifSimple', 'motifSaute', 'saut', 'hauteur', 'longueurMur', 
              'moulureLong', 'moulurePerimetre', 'adhMurL', 'adhMurH', 'cadreL', 'cadreH'].forEach(updateMeter);
         });
-    </script>
+    </script>       
+    // ENREGISTREMENT DU SERVICE WORKER (PWA)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker enregistré avec succès.', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('Échec de l\'enregistrement du ServiceWorker.', err);
+                    });
+            });
+        }
+
 </body>
 </html>
 
