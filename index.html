@@ -622,8 +622,11 @@
 
         const auth = firebase.auth();
         const db = firebase.database();
+        
+        let maConnexionFirebase = null;
+        let ecouteurCompteurActif = false;
 
-        // DOMAINES ET EMAILS AUTORISÉS
+        // DOMAINES ET EMAILS AUTORISÉS (Mis à jour avec votre email dev)
         const domainesAutorises = ['@leroymerlin.fr', '@xyra.fr'];
         const emailPersoAutorise = 'roger.philippe.dev@gmail.com'; 
 
@@ -705,6 +708,11 @@
         }
 
         function seDeconnecter() { 
+            // On supprime proprement le visiteur de la base de données avant de déconnecter le compte
+            if (maConnexionFirebase) {
+                maConnexionFirebase.remove();
+                maConnexionFirebase = null;
+            }
             auth.signOut(); 
         }
 
@@ -733,8 +741,7 @@
             }
         });
 
-        // --- GESTION DU COMPTEUR EN LIGNE ---
-        // Version originale restaurée
+        // --- GESTION DU COMPTEUR EN LIGNE (Corrigé pour les "fantômes") ---
         function activerCompteurEnLigne() {
             try {
                 const connectionsRef = db.ref('visiteurs_actifs');
@@ -742,16 +749,26 @@
 
                 connectedRef.on('value', (snap) => {
                     if (snap.val() === true) {
-                        const con = connectionsRef.push();
-                        con.onDisconnect().remove(); con.set(true);
+                        // Si l'utilisateur est déjà connecté dans cet onglet, on écrase l'ancienne connexion
+                        if (maConnexionFirebase) {
+                            maConnexionFirebase.remove();
+                        }
+                        maConnexionFirebase = connectionsRef.push();
+                        maConnexionFirebase.onDisconnect().remove(); 
+                        maConnexionFirebase.set(true);
                     }
                 });
 
-                connectionsRef.on('value', (snap) => {
-                    const count = snap.numChildren();
-                    document.getElementById('onlineCount').innerText = count + ' en ligne';
-                });
-            } catch (error) { document.getElementById('onlineCount').innerText = "1 en ligne"; }
+                if (!ecouteurCompteurActif) {
+                    connectionsRef.on('value', (snap) => {
+                        const count = snap.numChildren();
+                        document.getElementById('onlineCount').innerText = count + ' en ligne';
+                    });
+                    ecouteurCompteurActif = true;
+                }
+            } catch (error) { 
+                document.getElementById('onlineCount').innerText = "1 en ligne"; 
+            }
         }
 
         // --- NAVIGATION PRINCIPALE ---
