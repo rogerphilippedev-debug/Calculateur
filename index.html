@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.firebasedatabase.app wss://*.firebasedatabase.app https://*.europe-west1.firebasedatabase.app wss://*.europe-west1.firebasedatabase.app;">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='k' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2310b981' /%3E%3Cstop offset='100%25' stop-color='%23047857' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='5' y='5' width='110' height='110' rx='30' fill='url(%23k)' stroke='rgba(255,255,255,0.3)' stroke-width='2' /%3E%3Cg stroke-linecap='round'%3E%3Cpath d='M 32 32 L 32 88' stroke='rgba(255,255,255,0.4)' stroke-width='10' /%3E%3Cpath d='M 50 32 L 50 88' stroke='%23FFFFFF' stroke-width='12' /%3E%3Cpath d='M 50 60 L 82 32' stroke='%23FFFFFF' stroke-width='12' /%3E%3Cpath d='M 62 49 L 84 88' stroke='rgba(255,255,255,0.8)' stroke-width='12' /%3E%3C/g%3E%3C/svg%3E">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-EWZC0MGCNY"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -265,7 +263,7 @@
             </div>
         </div>
 
-        <div class="live-counter"><div class="pulse-dot"></div><span id="onlineCount">Chargement...</span></div>
+        <div class="live-counter"><div class="pulse-dot"></div><span id="onlineCount">1 en ligne</span></div>
 
         <!-- MENU PRINCIPAL -->
         <div class="option-grid" id="mainNavigation" style="margin-bottom: 30px;">
@@ -624,11 +622,8 @@
 
         const auth = firebase.auth();
         const db = firebase.database();
-        
-        let userConnectionRef = null;
-        let isCounterListening = false;
 
-        // DOMAINES ET EMAILS AUTORISÉS (Mis à jour avec votre email dev)
+        // DOMAINES ET EMAILS AUTORISÉS
         const domainesAutorises = ['@leroymerlin.fr', '@xyra.fr'];
         const emailPersoAutorise = 'roger.philippe.dev@gmail.com'; 
 
@@ -732,50 +727,31 @@
                     if(messageDiv) messageDiv.innerHTML = `<span style='color:#f87171;'>Accès refusé.<br>Le domaine n'est pas autorisé.</span>`;
                 }
             } else {
-                // NETTOYAGE DU COMPTEUR À LA DÉCONNEXION
-                if (userConnectionRef) {
-                    userConnectionRef.remove();
-                    userConnectionRef = null;
-                }
-                isCounterListening = false;
-                
                 loginScreen.classList.remove('hidden');
                 appContent.classList.remove('visible');
                 setTimeout(() => appContent.classList.add('hidden'), 400);
             }
         });
 
-        // --- GESTION DU COMPTEUR EN LIGNE (Avec détection d'erreurs DB) ---
+        // --- GESTION DU COMPTEUR EN LIGNE ---
+        // Version originale restaurée
         function activerCompteurEnLigne() {
             try {
                 const connectionsRef = db.ref('visiteurs_actifs');
                 const connectedRef = db.ref('.info/connected');
 
-                if (!userConnectionRef) {
-                    connectedRef.on('value', (snap) => {
-                        if (snap.val() === true) {
-                            userConnectionRef = connectionsRef.push();
-                            userConnectionRef.onDisconnect().remove(); 
-                            userConnectionRef.set(true).catch(error => {
-                                console.error("Écriture bloquée par les règles :", error);
-                            });
-                        }
-                    });
-                }
+                connectedRef.on('value', (snap) => {
+                    if (snap.val() === true) {
+                        const con = connectionsRef.push();
+                        con.onDisconnect().remove(); con.set(true);
+                    }
+                });
 
-                if (!isCounterListening) {
-                    connectionsRef.on('value', (snap) => {
-                        const count = snap.numChildren();
-                        document.getElementById('onlineCount').innerText = count + ' en ligne';
-                    }, (error) => {
-                        document.getElementById('onlineCount').innerText = "Accès refusé DB";
-                        console.error("Lecture bloquée par les règles :", error);
-                    });
-                    isCounterListening = true;
-                }
-            } catch (error) { 
-                document.getElementById('onlineCount').innerText = "1 en ligne"; 
-            }
+                connectionsRef.on('value', (snap) => {
+                    const count = snap.numChildren();
+                    document.getElementById('onlineCount').innerText = count + ' en ligne';
+                });
+            } catch (error) { document.getElementById('onlineCount').innerText = "1 en ligne"; }
         }
 
         // --- NAVIGATION PRINCIPALE ---
@@ -1019,4 +995,3 @@
     </script>
 </body>
 </html>
-
