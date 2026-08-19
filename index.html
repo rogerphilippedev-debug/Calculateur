@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.firebasedatabase.app wss://*.firebasedatabase.app;">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='k' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2310b981' /%3E%3Cstop offset='100%25' stop-color='%23047857' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='5' y='5' width='110' height='110' rx='30' fill='url(%23k)' stroke='rgba(255,255,255,0.3)' stroke-width='2' /%3E%3Cg stroke-linecap='round'%3E%3Cpath d='M 32 32 L 32 88' stroke='rgba(255,255,255,0.4)' stroke-width='10' /%3E%3Cpath d='M 50 32 L 50 88' stroke='%23FFFFFF' stroke-width='12' /%3E%3Cpath d='M 50 60 L 82 32' stroke='%23FFFFFF' stroke-width='12' /%3E%3Cpath d='M 62 49 L 84 88' stroke='rgba(255,255,255,0.8)' stroke-width='12' /%3E%3C/g%3E%3C/svg%3E">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-EWZC0MGCNY"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -508,12 +506,24 @@
         <div id="module-moulure" class="hidden">
             <div class="section-title">1. La Baguette</div>
             <div class="glass-box">
-                <label>Longueur d'une moulure</label>
-                <div class="input-wrapper">
-                    <input type="number" id="moulureLong" value="200" placeholder="Ex: 200" inputmode="decimal" min="0" oninput="updateMeter('moulureLong')">
-                    <span class="unit">cm</span>
+                <div class="row">
+                    <div>
+                        <label>Longueur</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="moulureLong" value="200" placeholder="Ex: 200" inputmode="decimal" min="0" oninput="updateMeter('moulureLong')">
+                            <span class="unit">cm</span>
+                        </div>
+                        <div id="m_moulureLong" class="meter-text"></div>
+                    </div>
+                    <div>
+                        <label>Largeur</label>
+                        <div class="input-wrapper" style="margin-bottom:0;">
+                            <input type="number" id="moulureLarg" value="3" placeholder="Ex: 3" inputmode="decimal" min="0">
+                            <span class="unit">cm</span>
+                        </div>
+                        <div class="meter-text"></div>
+                    </div>
                 </div>
-                <div id="m_moulureLong" class="meter-text" style="margin-bottom: 0;"></div>
             </div>
 
             <div class="section-title">2. Projet</div>
@@ -628,7 +638,7 @@
         let maConnexionFirebase = null;
         let presenceInitialisee = false;
 
-        // DOMAINES ET EMAILS AUTORISÉS
+        // DOMAINES ET EMAILS AUTORISÉS (Mis à jour avec votre email dev)
         const domainesAutorises = ['@leroymerlin.fr', '@xyra.fr'];
         const emailPersoAutorise = 'roger.philippe.dev@gmail.com'; 
 
@@ -972,32 +982,94 @@
 
         function calculerMoulure() {
             const mLong = parseFloat(document.getElementById('moulureLong').value);
+            const mLarg = parseFloat(document.getElementById('moulureLarg').value) || 0; 
+            
             if (!mLong || mLong <= 0) return alert("Indiquez la longueur d'une moulure.");
 
             const modeMoulure = document.getElementById('modeMoulure').value;
+            let totalMoulures = 0;
             let mPeri = 0;
 
             if (modeMoulure === 'moulure_lineaire') {
                 mPeri = parseFloat(document.getElementById('moulurePerimetre').value);
                 if (!mPeri || mPeri <= 0) return alert("Indiquez le périmètre ou la longueur linéaire totale.");
-            } else if (modeMoulure === 'moulure_cadres') {
-                const cL = parseFloat(document.getElementById('cadreL').value);
-                const cH = parseFloat(document.getElementById('cadreH').value);
-                const cQ = parseFloat(document.getElementById('cadreQ').value);
-                if (!cL || !cH || !cQ || cL <= 0 || cH <= 0 || cQ <= 0) return alert("Vérifiez les dimensions et la quantité.");
-                mPeri = ((cL + cH) * 2) * cQ;
+                totalMoulures = Math.ceil((mPeri * 1.10) / mLong);
+
             } else if (modeMoulure === 'moulure_m2') {
                 const surfPieceStr = document.getElementById('moulureSurface').value.replace(',', '.');
                 const surfPiece = parseFloat(surfPieceStr);
                 if (!surfPiece || surfPiece <= 0) return alert("Indiquez la surface de la pièce.");
                 mPeri = Math.sqrt(surfPiece) * 4 * 100;
+                totalMoulures = Math.ceil((mPeri * 1.10) / mLong);
+
+            } else if (modeMoulure === 'moulure_cadres') {
+                const cL = parseFloat(document.getElementById('cadreL').value);
+                const cH = parseFloat(document.getElementById('cadreH').value);
+                const cQ = parseFloat(document.getElementById('cadreQ').value);
+                if (!cL || !cH || !cQ || cL <= 0 || cH <= 0 || cQ <= 0) return alert("Vérifiez les dimensions et la quantité.");
+
+                mPeri = ((cL + cH) * 2) * cQ;
+
+                // --- ALGORITHME DE DÉCOUPE OPTIMISÉE ---
+                // Perte = largeur de la baguette + 1 cm (lame de scie et ajustement)
+                const perteCoupe = mLarg + 1; 
+                
+                let cuts = [];
+                for (let i = 0; i < cQ; i++) {
+                    cuts.push(cL + perteCoupe, cL + perteCoupe, cH + perteCoupe, cH + perteCoupe);
+                }
+                
+                cuts.sort((a, b) => b - a);
+
+                let baguettes = []; 
+                let baguettesPleines = 0; 
+
+                for (let cut of cuts) {
+                    if (cut > mLong) {
+                        baguettesPleines += Math.floor(cut / mLong);
+                        let remainder = cut % mLong;
+                        if (remainder > 0) {
+                            let placed = false;
+                            for (let j = 0; j < baguettes.length; j++) {
+                                if (baguettes[j] >= remainder) {
+                                    baguettes[j] -= remainder;
+                                    placed = true;
+                                    break;
+                                }
+                            }
+                            if (!placed) {
+                                baguettes.push(mLong - remainder);
+                            }
+                        }
+                    } else {
+                        let placed = false;
+                        for (let j = 0; j < baguettes.length; j++) {
+                            if (baguettes[j] >= cut) {
+                                baguettes[j] -= cut; 
+                                placed = true;
+                                break;
+                            }
+                        }
+                        if (!placed) {
+                            baguettes.push(mLong - cut); 
+                        }
+                    }
+                }
+                totalMoulures = baguettesPleines + baguettes.length;
             }
 
-            const totalMoulures = Math.ceil(mPeri / mLong);
             const mLineaire = (mPeri / 100).toString().replace('.', ',');
+            let details = `Pour couvrir un besoin net de ${mLineaire} mètres linéaires.`;
+
+            if (modeMoulure === 'moulure_cadres') {
+                const perteAffichee = (mLarg + 1).toString().replace('.', ',');
+                details += `<br><span style="font-size:12px; color:rgba(255,255,255,0.5);">Calcul exact incluant ${perteAffichee} cm de marge par côté (largeur de baguette + lame) pour les coupes d'onglet.</span>`;
+            } else {
+                details += `<br><span style="font-size:12px; color:rgba(255,255,255,0.5);">Inclut une marge de sécurité métier de 10 % pour absorber les coupes et les angles.</span>`;
+            }
 
             document.getElementById('resultTotal').innerHTML = `${totalMoulures} BAGUETTE${totalMoulures > 1 ? 'S' : ''}`;
-            document.getElementById('resultDetails').innerHTML = `Pour couvrir un besoin de ${mLineaire} mètres linéaires.`;
+            document.getElementById('resultDetails').innerHTML = details;
             ouvrirModal('resultModal');
         }
 
