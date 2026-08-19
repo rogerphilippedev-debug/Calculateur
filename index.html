@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <!-- Favicon SVG encodée (Logo Kover inversé) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.firebasedatabase.app wss://*.firebasedatabase.app;">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='k' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2310b981' /%3E%3Cstop offset='100%25' stop-color='%23047857' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='5' y='5' width='110' height='110' rx='30' fill='url(%23k)' stroke='rgba(255,255,255,0.3)' stroke-width='2' /%3E%3Cg stroke-linecap='round'%3E%3Cpath d='M 32 32 L 32 88' stroke='rgba(255,255,255,0.4)' stroke-width='10' /%3E%3Cpath d='M 50 32 L 50 88' stroke='%23FFFFFF' stroke-width='12' /%3E%3Cpath d='M 50 60 L 82 32' stroke='%23FFFFFF' stroke-width='12' /%3E%3Cpath d='M 62 49 L 84 88' stroke='rgba(255,255,255,0.8)' stroke-width='12' /%3E%3C/g%3E%3C/svg%3E">
-
-    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-EWZC0MGCNY"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -12,9 +10,8 @@
       gtag('js', new Date());
       gtag('config', 'G-EWZC0MGCNY');
     </script>
-
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <meta charset="UTF-8">
@@ -24,29 +21,80 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #545454; 
-            --text-main: #FFFFFF;
-            --text-muted: rgba(255, 255, 255, 0.6);
-            --panel-bg: rgba(255, 255, 255, 0.1); 
-            --panel-border: rgba(255, 255, 255, 0.2); 
-            --inactive-bg: rgba(255, 255, 255, 0.05);
-            --shadow-strong: 0 16px 40px -10px rgba(0, 0, 0, 0.4);
+            --bg-color: #545454; --text-main: #FFFFFF; --text-muted: rgba(255, 255, 255, 0.6);
+            --panel-bg: rgba(255, 255, 255, 0.1); --panel-border: rgba(255, 255, 255, 0.2); 
+            --inactive-bg: rgba(255, 255, 255, 0.05); --shadow-strong: 0 16px 40px -10px rgba(0, 0, 0, 0.4);
         }
-
         body { 
             font-family: 'Poppins', sans-serif; padding: 16px; background-color: var(--bg-color); 
-            color: var(--text-main); margin: 0; padding-bottom: 40px; padding-top: 50px;
-            position: relative; overflow-x: hidden;
+            color: var(--text-main); margin: 0; padding-bottom: 40px; padding-top: 20px; position: relative; overflow-x: hidden;
         }
-
-        /* Sphères lumineuses */
-        body::before, body::after {
-            content: ""; position: fixed; border-radius: 50%; z-index: -1; pointer-events: none;
-        }
+        body::before, body::after { content: ""; position: fixed; border-radius: 50%; z-index: -1; pointer-events: none; }
         body::before { top: 5%; right: -10%; width: 350px; height: 350px; background: #383838; }
         body::after { bottom: 10%; left: -10%; width: 250px; height: 250px; background: #474747; }
 
-        /* Compteur */
+        /* ÉCRAN DE CONNEXION */
+        #login-screen {
+            position: fixed; 
+            top: 0; left: 0; right: 0; bottom: 0; 
+            background: var(--bg-color); 
+            z-index: 9999;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            padding: 20px; 
+            box-sizing: border-box;
+            transition: opacity 0.4s ease; 
+            backdrop-filter: blur(10px);
+        }
+        #login-screen.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
+        
+        .login-box {
+            background: var(--panel-bg); 
+            backdrop-filter: blur(24px); 
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--panel-border); 
+            border-radius: 24px; 
+            padding: 40px 24px;
+            width: 100%; 
+            max-width: 350px; 
+            box-sizing: border-box;
+            text-align: center; 
+            box-shadow: var(--shadow-strong);
+        }
+        .login-box h3 { margin: 0 0 10px 0; font-size: 1.5rem; color: #FFF; }
+        .login-box p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 24px; }
+        
+        /* CLASSES SPÉCIFIQUES POUR LE FORMULAIRE DE CONNEXION */
+        .login-message { 
+            margin-top: 16px; 
+            font-size: 0.85rem; 
+            font-weight: 500; 
+            color: #10b981; 
+            line-height: 1.5;
+        }
+        .login-input {
+            padding: 16px !important; 
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .login-btn {
+            margin-bottom: 0 !important; 
+            margin-top: 10px !important;
+            padding: 14px !important;
+        }
+
+        /* CONTENU DE L'APP */
+        #app-content { transition: opacity 0.4s ease; opacity: 0; display: none; }
+        #app-content.visible { opacity: 1; display: block; }
+        .btn-logout {
+            position: absolute; top: 16px; left: 16px; background: rgba(255,255,255,0.05);
+            border: 1px solid var(--panel-border); color: var(--text-muted); padding: 6px 12px;
+            border-radius: 12px; font-size: 11px; font-weight: 600; cursor: pointer; z-index: 100;
+        }
+
         .live-counter {
             position: absolute; top: 16px; right: 16px; 
             padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; color: #FFFFFF; 
@@ -55,14 +103,11 @@
             border: 1px solid var(--panel-border); box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         .pulse-dot { width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; animation: pulse 2s infinite; }
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
-            70% { transform: scale(1); box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
+        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); } 70% { transform: scale(1); box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
 
-        /* En-tête */
-        .app-header { display: flex; align-items: center; justify-content: center; gap: 20px; margin: 10px 0 30px 0; }
+        /* Correction de la marge du haut pour éviter que les boutons absolus ne chevauchent le logo */
+        .app-header { display: flex; align-items: center; justify-content: center; gap: 20px; margin: 60px 0 30px 0; }
+        
         .app-logo { width: 90px; height: 90px; filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.4)); }
         .header-text { display: flex; flex-direction: column; justify-content: center; text-align: left; }
         h2 { margin: 0; font-size: 1.8rem; font-weight: 700; color: #FFFFFF; letter-spacing: 0.5px; line-height: 1.1; }
@@ -71,91 +116,50 @@
         .section-title { font-weight: 600; font-size: 1.1rem; margin: 24px 0 12px 4px; color: var(--text-main); letter-spacing: 0.5px; }
         .section-title:first-child { margin-top: 0; }
 
-        /* Inputs */
         label { font-weight: 500; font-size: 14px; color: var(--text-muted); margin-left: 4px; display: block; }
         ::placeholder { color: rgba(255, 255, 255, 0.2); }
-        
         .input-wrapper { position: relative; width: 100%; margin: 4px 0 16px 0; }
-        
         input { 
-            width: 100%; padding: 16px 45px 16px 16px; margin: 0; 
-            border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; box-sizing: border-box; 
-            font-size: 16px; font-family: inherit; color: var(--text-main);
-            background-color: rgba(0, 0, 0, 0.25); 
-            box-shadow: inset 0px 2px 6px rgba(0, 0, 0, 0.3); 
-            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            width: 100%; padding: 16px 45px 16px 16px; margin: 0; border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; box-sizing: border-box; 
+            font-size: 16px; font-family: inherit; color: var(--text-main); background-color: rgba(0, 0, 0, 0.25); box-shadow: inset 0px 2px 6px rgba(0, 0, 0, 0.3); transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
-        input:focus { 
-            outline: none; border-color: rgba(255,255,255,0.5); background-color: rgba(0, 0, 0, 0.4); 
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15), inset 0px 2px 5px rgba(0,0,0,0.5); 
-        }
-
+        input:focus { outline: none; border-color: rgba(255,255,255,0.5); background-color: rgba(0, 0, 0, 0.4); box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15), inset 0px 2px 5px rgba(0,0,0,0.5); }
         .unit { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.4); font-size: 15px; font-weight: 500; pointer-events: none; }
         .meter-text { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: -10px; margin-bottom: 12px; text-align: right; padding-right: 8px; font-style: italic; min-height: 16px; }
-        .row { display: flex; gap: 16px; } 
-        .row > div { flex: 1; }
+        .row { display: flex; gap: 16px; } .row > div { flex: 1; }
 
-        /* Boîtes et Onglets */
-        .glass-box {
-            background: var(--panel-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--panel-border); border-radius: 24px; padding: 24px 16px 12px 16px; margin-bottom: 30px;
-            box-shadow: var(--shadow-strong);
-        }
-
-        .option-grid { 
-            display: flex; gap: 12px; position: relative; z-index: 2; margin-bottom: 24px; align-items: flex-start; 
-        }
+        .glass-box { background: var(--panel-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid var(--panel-border); border-radius: 24px; padding: 24px 16px 12px 16px; margin-bottom: 30px; box-shadow: var(--shadow-strong); }
+        .option-grid { display: flex; gap: 12px; position: relative; z-index: 2; margin-bottom: 24px; align-items: flex-start; }
         .option-grid.connected-mode { margin-bottom: 0; }
-        
         .option-card {
-            flex: 1; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 22px; 
-            padding: 16px 4px; margin-bottom: 16px; 
-            text-align: center; cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
+            flex: 1; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 22px; padding: 16px 4px; margin-bottom: 16px; text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 8px; position: relative;
-            background: var(--inactive-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            background: var(--inactive-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
         }
         .option-card span { font-size: 12px; font-weight: 500; color: var(--text-muted); line-height: 1.3; transition: all 0.4s; }
         .option-card svg { width: 32px; height: 32px; stroke: var(--text-muted); fill: none; stroke-linecap: round; stroke-linejoin: round; transition: all 0.4s; }
-        
         .option-card:active { transform: scale(0.96); }
         .option-card.active { background: rgba(255, 255, 255, 0.20); border: 1px solid rgba(255, 255, 255, 0.5); z-index: 3; }
         .option-card.active span { color: #FFFFFF; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .option-card.active svg { stroke: #FFFFFF; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5)); }
-
-        .option-card.active.connected {
-            border-bottom-color: transparent; border-bottom-left-radius: 0; border-bottom-right-radius: 0;
-            margin-bottom: -1px; padding-bottom: 33px; z-index: 10;
-        }
+        .option-card.active.connected { border-bottom-color: transparent; border-bottom-left-radius: 0; border-bottom-right-radius: 0; margin-bottom: -1px; padding-bottom: 33px; z-index: 10; }
+        .option-card.active.connected::after { content: ""; position: absolute; bottom: -2px; left: 0; right: 0; height: 4px; background: rgba(255, 255, 255, 0.20); z-index: 11; }
         
-        .option-card.active.connected::after {
-            content: ""; position: absolute; bottom: -2px; left: 0; right: 0; height: 4px; background: rgba(255, 255, 255, 0.20); z-index: 11;
-        }
-
         .dynamic-zone {
             position: relative; z-index: 1; padding: 24px 16px 12px 16px; margin-bottom: 30px; border-radius: 24px;
-            background: rgba(255, 255, 255, 0.20); 
-            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.5); 
-            box-shadow: var(--shadow-strong); transition: border-radius 0.3s ease;
+            background: rgba(255, 255, 255, 0.20); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: var(--shadow-strong); transition: border-radius 0.3s ease;
         }
         .dynamic-zone.pos-left { border-top-left-radius: 0; }
         .dynamic-zone.pos-right { border-top-right-radius: 0; }
         .separator { height: 1px; background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.15), transparent); margin: 8px 0 24px 0; }
 
         button.btn-calculer { 
-            width: 100%; padding: 18px; 
-            background: rgba(255, 255, 255, 0.05); 
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white; border-radius: 16px; 
-            font-size: 17px; font-weight: 700; letter-spacing: 0.5px; 
-            margin-top: 10px; margin-bottom: 100px; 
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); 
-            cursor: pointer; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            width: 100%; padding: 18px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2); color: white; border-radius: 16px; font-size: 17px; font-weight: 700; letter-spacing: 0.5px; 
+            margin-top: 10px; margin-bottom: 100px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); cursor: pointer; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
         button.btn-calculer:hover { background: rgba(255, 255, 255, 0.1); }
         button.btn-calculer:active { transform: scale(0.96); box-shadow: 0 5px 15px -5px rgba(0, 0, 0, 0.2); }
@@ -164,26 +168,18 @@
         /* Modals */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; z-index: 10000; opacity: 0; visibility: hidden; transition: all 0.4s ease; padding: 15px; }
         .modal-overlay.active { opacity: 1; visibility: visible; }
-        
         .modal-content { 
             background: rgba(66, 66, 66, 0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--panel-border); width: 100%; max-width: 400px; border-radius: 24px; padding: 25px 20px; 
             position: relative; transform: translateY(30px) scale(0.95); transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8); color: white; 
-            /* CORRECTION SCROLL ICI */
-            max-height: 80vh; 
-            overflow-y: auto;
-            overscroll-behavior: contain;
+            max-height: 80vh; overflow-y: auto; overscroll-behavior: contain;
         }
-        
         .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
-        
         .modal-result { background: rgba(255,255,255,0.1); border: 1px solid var(--panel-border); text-align: center; }
         .modal-result .result-title { color: rgba(255, 255, 255, 0.7); font-size: 15px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
         .modal-result .result-number { font-size: 42px; font-weight: 800; color: #FFFFFF; margin: 15px 0; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
         .modal-result .result-details { color: rgba(255, 255, 255, 0.7); font-size: 15px; line-height: 1.5; font-weight: 500; }
-        
         .close-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 32px; height: 32px; color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0; z-index: 2; transition: background 0.2s; }
-        
         .legal-link { text-align: center; margin-top: 10px; margin-bottom: 20px; font-size: 13px; color: var(--text-muted); text-decoration: underline; cursor: pointer; }
         .legal-content h3 { margin-top: 0; font-size: 1.3rem; color: #FFFFFF; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-right: 20px; }
         .legal-content p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px; line-height: 1.6; text-align: justify; }
@@ -192,378 +188,384 @@
 </head>
 <body>
 
-    <div class="live-counter"><div class="pulse-dot"></div><span id="onlineCount">1 en ligne</span></div>
-    
-    <div class="app-header">
-        <!-- Logo SVG Kover Inversé et Agrandit -->
-        <svg class="app-logo" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <!-- ÉCRAN DE CONNEXION -->
+    <div id="login-screen">
+        <svg class="app-logo" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px; margin-bottom: 24px;">
             <defs>
-                <linearGradient id="kGradBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                <linearGradient id="kGradBg2" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#10b981" />
                     <stop offset="100%" stop-color="#047857" />
                 </linearGradient>
-                <filter id="kShadow" x="-10%" y="-10%" width="130%" height="130%">
-                    <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.4"/>
-                </filter>
             </defs>
-            <rect x="5" y="5" width="110" height="110" rx="30" fill="url(#kGradBg)" stroke="rgba(255,255,255,0.3)" stroke-width="2" filter="url(#kShadow)"/>
+            <rect x="5" y="5" width="110" height="110" rx="30" fill="url(#kGradBg2)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
             <g stroke-linecap="round">
-                <!-- La Barre (Le Mur) -->
                 <path d="M 32 32 L 32 88" stroke="rgba(255,255,255,0.4)" stroke-width="10" />
-                <!-- La lettre K (Le Revêtement) -->
                 <path d="M 50 32 L 50 88" stroke="#FFFFFF" stroke-width="12" />
                 <path d="M 50 60 L 82 32" stroke="#FFFFFF" stroke-width="12" />
                 <path d="M 62 49 L 84 88" stroke="rgba(255,255,255,0.8)" stroke-width="12" />
             </g>
         </svg>
-        <div class="header-text">
-            <h2>Kover</h2>
-            <div class="app-subtitle">Outil de calcul de revêtements muraux.</div>
-        </div>
-    </div>
-
-    <!-- MENU PRINCIPAL -->
-    <div class="option-grid" id="mainNavigation" style="margin-bottom: 30px;">
-        <div class="option-card active" onclick="switchMainTab('papier', this)">
-            <svg viewBox="0 0 24 24" stroke-width="2">
-                <rect x="4" y="4" width="16" height="16" rx="2" />
-                <line x1="8" y1="4" x2="8" y2="20" />
-                <path d="M12 4v16" stroke-dasharray="2 2" opacity="0.5"/>
-            </svg>
-            <span>Papier<br>Peint</span>
-        </div>
-        <div class="option-card" onclick="switchMainTab('adhesif', this)">
-            <svg viewBox="0 0 24 24" stroke-width="2">
-                <rect x="3" y="3" width="8" height="8" rx="1" />
-                <rect x="13" y="3" width="8" height="8" rx="1" />
-                <rect x="3" y="13" width="8" height="8" rx="1" />
-                <rect x="13" y="13" width="8" height="8" rx="1" />
-            </svg>
-            <span>Adhésifs<br>& Carreaux</span>
-        </div>
-        <div class="option-card" onclick="switchMainTab('moulure', this)">
-            <svg viewBox="0 0 24 24" stroke-width="2">
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="8" x2="21" y2="8" opacity="0.5" />
-                <line x1="3" y1="16" x2="21" y2="16" opacity="0.5" />
-            </svg>
-            <span>Moulures<br>& Cimaises</span>
-        </div>
-    </div>
-
-    <!-- MODULE 1 : PAPIER PEINT -->
-    <div id="module-papier">
-        <div class="section-title">1. Le Rouleau</div>
-        <div class="glass-box">
-            <div class="row">
-                <div>
-                    <label>Longueur</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="rouleauLong" value="1005" inputmode="decimal" oninput="updateMeter('rouleauLong')">
-                        <span class="unit">cm</span>
-                    </div>
-                    <div id="m_rouleauLong" class="meter-text"></div>
-                </div>
-                <div>
-                    <label>Largeur</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="rouleauLarg" value="53" inputmode="decimal" oninput="updateMeter('rouleauLarg')">
-                        <span class="unit">cm</span>
-                    </div>
-                    <div id="m_rouleauLarg" class="meter-text"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="section-title">2. Le Raccord</div>
-        <div class="option-grid" id="gridRaccord">
-            <div class="option-card active" onclick="selectRaccord('sans', this)">
-                <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="10" y1="3" x2="10" y2="21" />
-                    <path d="M 3 12 H 7 M 5 10 L 7 12 L 5 14" />
-                    <rect x="14" y="8" width="5" height="8" rx="2.5" stroke-width="2" />
-                </svg>
-                <span>Sans<br>raccord</span>
-            </div>
-            <div class="option-card" onclick="selectRaccord('simple', this)">
-                <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="12" y1="3" x2="12" y2="21" />
-                    <path d="M 4 12 H 9 M 6 9 L 9 12 L 6 15" />
-                    <path d="M 20 12 H 15 M 18 9 L 15 12 L 18 15" />
-                </svg>
-                <span>Raccord<br>droit</span>
-            </div>
-            <div class="option-card" onclick="selectRaccord('saute', this)">
-                <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="12" y1="3" x2="12" y2="21" />
-                    <path d="M 4 8 H 9 M 6 5 L 9 8 L 6 11" />
-                    <path d="M 20 16 H 15 M 18 13 L 15 16 L 18 19" />
-                </svg>
-                <span>Raccord<br>saut&eacute;</span>
-            </div>
-        </div>
         
-        <input type="hidden" id="typeRaccord" value="sans">
-        <div id="zoneRaccord" class="dynamic-zone hidden">
-            <div id="groupeRaccordSimple" class="hidden">
-                <label>Taille du motif</label>
-                <div class="input-wrapper">
-                    <input type="number" id="motifSimple" value="53" placeholder="Ex: 53" inputmode="decimal" oninput="updateMeter('motifSimple')">
-                    <span class="unit">cm</span>
-                </div>
-                <div id="m_motifSimple" class="meter-text"></div>
-            </div>
-            <div id="groupeRaccordSaute" class="row hidden">
-                <div>
-                    <label>Motif</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="motifSaute" value="64" placeholder="Ex: 64" inputmode="decimal" oninput="updateMeter('motifSaute')">
-                        <span class="unit">cm</span>
-                    </div>
-                    <div id="m_motifSaute" class="meter-text"></div>
-                </div>
-                <div>
-                    <label>Saut</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="saut" value="32" placeholder="Ex: 32" inputmode="decimal" oninput="updateMeter('saut')">
-                        <span class="unit">cm</span>
-                    </div>
-                    <div id="m_saut" class="meter-text"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="section-title">3. La Surface</div>
-        <div class="option-grid connected-mode" id="gridSurface">
-            <div class="option-card active connected" onclick="selectMode('mur_dim', this)">
-                <svg viewBox="0 0 24 24" stroke-width="2.5"><rect x="3" y="4" width="18" height="11" rx="2" /><line x1="3" y1="20" x2="21" y2="20" /><polyline points="7,17 3,20 7,23" /><polyline points="17,17 21,20 17,23" /></svg>
-                <span>Longueur<br>du mur</span>
-            </div>
-            <div class="option-card" onclick="selectMode('piece_m2', this)">
-                <svg viewBox="0 0 24 24" stroke-width="2.5"><polygon points="2,14 12,9 12,2 2,7" stroke-width="1.5" stroke-opacity="0.3" /><polygon points="12,9 22,14 22,7 12,2" stroke-width="1.5" stroke-opacity="0.3" /><polygon points="2,14 12,21 22,14 12,9" /><line x1="7" y1="16.5" x2="17" y2="11.5" stroke-width="1.5" stroke-opacity="0.3" /><line x1="7" y1="11.5" x2="17" y2="16.5" stroke-width="1.5" stroke-opacity="0.3" /></svg>
-                <span>Surface de<br>la pi&egrave;ce</span>
-            </div>
-            <div class="option-card" onclick="selectMode('mur_m2', this)">
-                <svg viewBox="0 0 24 24" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="3" y1="9" x2="21" y2="9" stroke-width="1.5" stroke-opacity="0.3"/><line x1="3" y1="15" x2="21" y2="15" stroke-width="1.5" stroke-opacity="0.3"/><line x1="9" y1="3" x2="9" y2="21" stroke-width="1.5" stroke-opacity="0.3"/><line x1="15" y1="3" x2="15" y2="21" stroke-width="1.5" stroke-opacity="0.3"/></svg>
-                <span>Surface<br>du mur</span>
-            </div>
-        </div>
-        <input type="hidden" id="modeCalcul" value="mur_dim">
-
-        <div id="zoneSurface" class="dynamic-zone pos-left">
-            <div id="groupeMurDim">
-                <label>Longueur totale &agrave; tapisser</label>
-                <div class="input-wrapper">
-                    <input type="number" id="longueurMur" placeholder="Ex: 400" inputmode="decimal" oninput="updateMeter('longueurMur')">
-                    <span class="unit">cm</span>
-                </div>
-                <div id="m_longueurMur" class="meter-text"></div>
-            </div>
-            <div id="groupePieceM2" class="hidden">
-                <label>Surface au sol de la pi&egrave;ce</label>
-                <div class="input-wrapper">
-                    <input type="number" id="surfacePiece" placeholder="Ex: 15" inputmode="decimal">
-                    <span class="unit">m&sup2;</span>
-                </div>
-                <div class="meter-text"></div>
-            </div>
-            <div id="groupeMurM2" class="hidden">
-                <label>Surface du mur</label>
-                <div class="input-wrapper">
-                    <input type="number" id="surfaceMur" placeholder="Ex: 10" inputmode="decimal">
-                    <span class="unit">m&sup2;</span>
-                </div>
-                <div class="meter-text"></div>
-            </div>
-
-            <div class="separator"></div>
-
-            <label>Hauteur du mur</label>
+        <div class="login-box">
+            <h3>Bienvenue</h3>
+            <p>Espace réservé à l'équipe magasin.</p>
             <div class="input-wrapper">
-                <input type="number" id="hauteur" value="250" placeholder="Ex: 250" inputmode="decimal" oninput="updateMeter('hauteur')">
-                <span class="unit">cm</span>
+                <input type="email" id="loginEmail" class="login-input" placeholder="Votre e-mail professionnel">
             </div>
-            <div id="m_hauteur" class="meter-text"></div>
+            <button class="btn-calculer login-btn" onclick="envoyerLienMagique()">Recevoir l'accès</button>
+            <div id="loginMessage" class="login-message"></div>
         </div>
     </div>
 
-    <!-- MODULE 2 : ADHÉSIFS & CARREAUX -->
-    <div id="module-adhesif" class="hidden">
-        <div class="section-title">1. Plaque ou Carreau</div>
-        <div class="glass-box">
-            <div class="row">
-                <div>
-                    <label>Hauteur</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="adhH" placeholder="Ex: 28.8" inputmode="decimal">
-                        <span class="unit">cm</span>
-                    </div>
-                </div>
-                <div>
-                    <label>Largeur</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="adhL" placeholder="Ex: 29" inputmode="decimal">
-                        <span class="unit">cm</span>
-                    </div>
-                </div>
-            </div>
-            <label>Pièces par paquet</label>
-            <div class="input-wrapper" style="margin-bottom:0;">
-                <input type="number" id="adhPack" value="10" placeholder="Ex: 10" inputmode="decimal">
-                <span class="unit">unités</span>
+    <!-- CONTENU PRINCIPAL DE L'APPLICATION -->
+    <div id="app-content">
+        <button class="btn-logout" onclick="seDeconnecter()">Déconnexion</button>
+
+        <div class="app-header">
+            <svg class="app-logo" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                <rect x="5" y="5" width="110" height="110" rx="30" fill="url(#kGradBg)" stroke="rgba(255,255,255,0.3)" stroke-width="2" filter="url(#kShadow)"/>
+                <g stroke-linecap="round">
+                    <path d="M 32 32 L 32 88" stroke="rgba(255,255,255,0.4)" stroke-width="10" />
+                    <path d="M 50 32 L 50 88" stroke="#FFFFFF" stroke-width="12" />
+                    <path d="M 50 60 L 82 32" stroke="#FFFFFF" stroke-width="12" />
+                    <path d="M 62 49 L 84 88" stroke="rgba(255,255,255,0.8)" stroke-width="12" />
+                </g>
+            </svg>
+            <div class="header-text">
+                <h2>Kover</h2>
+                <div class="app-subtitle">Outil de calcul de revêtements muraux.</div>
             </div>
         </div>
 
-        <div class="section-title">2. Surface à couvrir</div>
-        <div class="option-grid connected-mode" id="gridAdhSurface">
-            <div class="option-card active connected" onclick="selectAdhMode('adh_dim', this)">
-                <svg viewBox="0 0 24 24" stroke-width="2.5"><rect x="3" y="5" width="18" height="14" rx="2" /><polyline points="3,12 6,9 6,15" stroke-opacity="0.5"/><polyline points="21,12 18,9 18,15" stroke-opacity="0.5"/><line x1="3" y1="12" x2="21" y2="12" stroke-opacity="0.5"/></svg>
-                <span>Dimensions<br>(L x H)</span>
+        <div class="live-counter"><div class="pulse-dot"></div><span id="onlineCount">Chargement...</span></div>
+
+        <!-- MENU PRINCIPAL -->
+        <div class="option-grid" id="mainNavigation" style="margin-bottom: 30px;">
+            <div class="option-card active" onclick="switchMainTab('papier', this)">
+                <svg viewBox="0 0 24 24" stroke-width="2">
+                    <rect x="4" y="4" width="16" height="16" rx="2" />
+                    <line x1="8" y1="4" x2="8" y2="20" />
+                    <path d="M12 4v16" stroke-dasharray="2 2" opacity="0.5"/>
+                </svg>
+                <span>Papier<br>Peint</span>
             </div>
-            <div class="option-card" onclick="selectAdhMode('adh_m2', this)">
-                <svg viewBox="0 0 24 24" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="3" y1="9" x2="21" y2="9" stroke-width="1.5" stroke-opacity="0.3"/><line x1="3" y1="15" x2="21" y2="15" stroke-width="1.5" stroke-opacity="0.3"/><line x1="9" y1="3" x2="9" y2="21" stroke-width="1.5" stroke-opacity="0.3"/><line x1="15" y1="3" x2="15" y2="21" stroke-width="1.5" stroke-opacity="0.3"/></svg>
-                <span>Surface en<br>m&sup2;</span>
+            <div class="option-card" onclick="switchMainTab('adhesif', this)">
+                <svg viewBox="0 0 24 24" stroke-width="2">
+                    <rect x="3" y="3" width="8" height="8" rx="1" />
+                    <rect x="13" y="3" width="8" height="8" rx="1" />
+                    <rect x="3" y="13" width="8" height="8" rx="1" />
+                    <rect x="13" y="13" width="8" height="8" rx="1" />
+                </svg>
+                <span>Adhésifs<br>& Carreaux</span>
+            </div>
+            <div class="option-card" onclick="switchMainTab('moulure', this)">
+                <svg viewBox="0 0 24 24" stroke-width="2">
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="8" x2="21" y2="8" opacity="0.5" />
+                    <line x1="3" y1="16" x2="21" y2="16" opacity="0.5" />
+                </svg>
+                <span>Moulures<br>& Cimaises</span>
             </div>
         </div>
-        
-        <input type="hidden" id="modeAdhSurface" value="adh_dim">
 
-        <div id="zoneAdhSurface" class="dynamic-zone pos-left">
-            <div id="groupeAdhDim">
+        <!-- MODULE 1 : PAPIER PEINT -->
+        <div id="module-papier">
+            <div class="section-title">1. Le Rouleau</div>
+            <div class="glass-box">
                 <div class="row">
                     <div>
                         <label>Longueur</label>
                         <div class="input-wrapper">
-                            <input type="number" id="adhMurL" placeholder="Ex: 300" inputmode="decimal" oninput="updateMeter('adhMurL')">
+                            <input type="number" id="rouleauLong" value="1005" inputmode="decimal" min="0" oninput="updateMeter('rouleauLong')">
                             <span class="unit">cm</span>
                         </div>
-                        <div id="m_adhMurL" class="meter-text"></div>
+                        <div id="m_rouleauLong" class="meter-text"></div>
                     </div>
                     <div>
-                        <label>Hauteur</label>
+                        <label>Largeur</label>
                         <div class="input-wrapper">
-                            <input type="number" id="adhMurH" placeholder="Ex: 60" inputmode="decimal" oninput="updateMeter('adhMurH')">
+                            <input type="number" id="rouleauLarg" value="53" inputmode="decimal" min="0" oninput="updateMeter('rouleauLarg')">
                             <span class="unit">cm</span>
                         </div>
-                        <div id="m_adhMurH" class="meter-text"></div>
+                        <div id="m_rouleauLarg" class="meter-text"></div>
                     </div>
                 </div>
             </div>
-            <div id="groupeAdhM2" class="hidden">
-                <label>Surface totale</label>
-                <div class="input-wrapper" style="margin-bottom:0;">
-                    <input type="number" id="adhSurface" placeholder="Ex: 3.5" inputmode="decimal">
-                    <span class="unit">m&sup2;</span>
+
+            <div class="section-title">2. Le Raccord</div>
+            <div class="option-grid" id="gridRaccord">
+                <div class="option-card active" onclick="selectRaccord('sans', this)">
+                    <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="10" y1="3" x2="10" y2="21" />
+                        <path d="M 3 12 H 7 M 5 10 L 7 12 L 5 14" />
+                        <rect x="14" y="8" width="5" height="8" rx="2.5" stroke-width="2" />
+                    </svg>
+                    <span>Sans<br>raccord</span>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODULE 3 : MOULURES & CIMAISES -->
-    <div id="module-moulure" class="hidden">
-        <div class="section-title">1. La Baguette</div>
-        <div class="glass-box">
-            <label>Longueur d'une moulure</label>
-            <div class="input-wrapper">
-                <input type="number" id="moulureLong" value="200" placeholder="Ex: 200" inputmode="decimal" oninput="updateMeter('moulureLong')">
-                <span class="unit">cm</span>
-            </div>
-            <div id="m_moulureLong" class="meter-text" style="margin-bottom: 0;"></div>
-        </div>
-
-        <div class="section-title">2. Projet</div>
-        <div class="option-grid connected-mode" id="gridMoulureMode">
-            <div class="option-card active connected" onclick="selectMoulureMode('moulure_cadres', this)">
-                <svg viewBox="0 0 24 24" stroke-width="2.5"><rect x="4" y="4" width="16" height="16" rx="1" /><rect x="8" y="8" width="8" height="8" rx="0.5" stroke-opacity="0.6" /></svg>
-                <span>Encadrements<br>Décoratifs</span>
-            </div>
-            <div class="option-card" onclick="selectMoulureMode('moulure_lineaire', this)">
-                <svg viewBox="0 0 24 24" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="8" x2="3" y2="16"/><line x1="21" y1="8" x2="21" y2="16"/></svg>
-                <span>Longueur<br>Linéaire</span>
-            </div>
-            <div class="option-card" onclick="selectMoulureMode('moulure_m2', this)">
-                <svg viewBox="0 0 24 24" stroke-width="2.5"><polygon points="2,14 12,9 12,2 2,7" stroke-width="1.5" stroke-opacity="0.3" /><polygon points="12,9 22,14 22,7 12,2" stroke-width="1.5" stroke-opacity="0.3" /><polygon points="2,14 12,21 22,14 12,9" /><line x1="7" y1="16.5" x2="17" y2="11.5" stroke-width="1.5" stroke-opacity="0.3" /><line x1="7" y1="11.5" x2="17" y2="16.5" stroke-width="1.5" stroke-opacity="0.3" /></svg>
-                <span>Surface de<br>la pièce</span>
-            </div>
-        </div>
-
-        <input type="hidden" id="modeMoulure" value="moulure_cadres">
-
-        <div id="zoneMoulure" class="dynamic-zone pos-left">
-            <div id="groupeMoulureCadres">
-                <div class="row">
-                    <div>
-                        <label>Largeur cadre</label>
-                        <div class="input-wrapper">
-                            <input type="number" id="cadreL" placeholder="Ex: 50" inputmode="decimal" oninput="updateMeter('cadreL')">
-                            <span class="unit">cm</span>
-                        </div>
-                        <div id="m_cadreL" class="meter-text"></div>
-                    </div>
-                    <div>
-                        <label>Hauteur cadre</label>
-                        <div class="input-wrapper">
-                            <input type="number" id="cadreH" placeholder="Ex: 80" inputmode="decimal" oninput="updateMeter('cadreH')">
-                            <span class="unit">cm</span>
-                        </div>
-                        <div id="m_cadreH" class="meter-text"></div>
-                    </div>
+                <div class="option-card" onclick="selectRaccord('simple', this)">
+                    <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="3" x2="12" y2="21" />
+                        <path d="M 4 12 H 9 M 6 9 L 9 12 L 6 15" />
+                        <path d="M 20 12 H 15 M 18 9 L 15 12 L 18 15" />
+                    </svg>
+                    <span>Raccord<br>droit</span>
                 </div>
-                <label>Quantité de cadres</label>
-                <div class="input-wrapper" style="margin-bottom:0;">
-                    <input type="number" id="cadreQ" value="1" placeholder="Ex: 10" inputmode="decimal">
-                    <span class="unit">unités</span>
+                <div class="option-card" onclick="selectRaccord('saute', this)">
+                    <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="3" x2="12" y2="21" />
+                        <path d="M 4 8 H 9 M 6 5 L 9 8 L 6 11" />
+                        <path d="M 20 16 H 15 M 18 13 L 15 16 L 18 19" />
+                    </svg>
+                    <span>Raccord<br>saut&eacute;</span>
                 </div>
             </div>
             
-            <div id="groupeMoulureLineaire" class="hidden">
-                <label>Longueur linéaire totale</label>
-                <div class="input-wrapper">
-                    <input type="number" id="moulurePerimetre" placeholder="Ex: 1200" inputmode="decimal" oninput="updateMeter('moulurePerimetre')">
-                    <span class="unit">cm</span>
+            <input type="hidden" id="typeRaccord" value="sans">
+            <div id="zoneRaccord" class="dynamic-zone hidden">
+                <div id="groupeRaccordSimple" class="hidden">
+                    <label>Taille du motif</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="motifSimple" value="53" placeholder="Ex: 53" inputmode="decimal" min="0" oninput="updateMeter('motifSimple')">
+                        <span class="unit">cm</span>
+                    </div>
+                    <div id="m_motifSimple" class="meter-text"></div>
                 </div>
-                <div id="m_moulurePerimetre" class="meter-text" style="margin-bottom: 0;"></div>
+                <div id="groupeRaccordSaute" class="row hidden">
+                    <div>
+                        <label>Motif</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="motifSaute" value="64" placeholder="Ex: 64" inputmode="decimal" min="0" oninput="updateMeter('motifSaute')">
+                            <span class="unit">cm</span>
+                        </div>
+                        <div id="m_motifSaute" class="meter-text"></div>
+                    </div>
+                    <div>
+                        <label>Saut</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="saut" value="32" placeholder="Ex: 32" inputmode="decimal" min="0" oninput="updateMeter('saut')">
+                            <span class="unit">cm</span>
+                        </div>
+                        <div id="m_saut" class="meter-text"></div>
+                    </div>
+                </div>
             </div>
 
-            <div id="groupeMoulureM2" class="hidden">
-                <label>Surface au sol de la pièce</label>
+            <div class="section-title">3. La Surface</div>
+            <div class="option-grid connected-mode" id="gridSurface">
+                <div class="option-card active connected" onclick="selectMode('mur_dim', this)">
+                    <svg viewBox="0 0 24 24" stroke-width="2.5"><rect x="3" y="4" width="18" height="11" rx="2" /><line x1="3" y1="20" x2="21" y2="20" /><polyline points="7,17 3,20 7,23" /><polyline points="17,17 21,20 17,23" /></svg>
+                    <span>Longueur<br>du mur</span>
+                </div>
+                <div class="option-card" onclick="selectMode('piece_m2', this)">
+                    <svg viewBox="0 0 24 24" stroke-width="2.5"><polygon points="2,14 12,9 12,2 2,7" stroke-width="1.5" stroke-opacity="0.3" /><polygon points="12,9 22,14 22,7 12,2" stroke-width="1.5" stroke-opacity="0.3" /><polygon points="2,14 12,21 22,14 12,9" /><line x1="7" y1="16.5" x2="17" y2="11.5" stroke-width="1.5" stroke-opacity="0.3" /><line x1="7" y1="11.5" x2="17" y2="16.5" stroke-width="1.5" stroke-opacity="0.3" /></svg>
+                    <span>Surface de<br>la pi&egrave;ce</span>
+                </div>
+                <div class="option-card" onclick="selectMode('mur_m2', this)">
+                    <svg viewBox="0 0 24 24" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="3" y1="9" x2="21" y2="9" stroke-width="1.5" stroke-opacity="0.3"/><line x1="3" y1="15" x2="21" y2="15" stroke-width="1.5" stroke-opacity="0.3"/><line x1="9" y1="3" x2="9" y2="21" stroke-width="1.5" stroke-opacity="0.3"/><line x1="15" y1="3" x2="15" y2="21" stroke-width="1.5" stroke-opacity="0.3"/></svg>
+                    <span>Surface<br>du mur</span>
+                </div>
+            </div>
+            <input type="hidden" id="modeCalcul" value="mur_dim">
+
+            <div id="zoneSurface" class="dynamic-zone pos-left">
+                <div id="groupeMurDim">
+                    <label>Longueur totale &agrave; tapisser</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="longueurMur" placeholder="Ex: 400" inputmode="decimal" min="0" oninput="updateMeter('longueurMur')">
+                        <span class="unit">cm</span>
+                    </div>
+                    <div id="m_longueurMur" class="meter-text"></div>
+                </div>
+                <div id="groupePieceM2" class="hidden">
+                    <label>Surface au sol de la pi&egrave;ce</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="surfacePiece" placeholder="Ex: 15" inputmode="decimal" min="0">
+                        <span class="unit">m&sup2;</span>
+                    </div>
+                    <div class="meter-text"></div>
+                </div>
+                <div id="groupeMurM2" class="hidden">
+                    <label>Surface du mur</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="surfaceMur" placeholder="Ex: 10" inputmode="decimal" min="0">
+                        <span class="unit">m&sup2;</span>
+                    </div>
+                    <div class="meter-text"></div>
+                </div>
+
+                <div class="separator"></div>
+
+                <label>Hauteur du mur</label>
+                <div class="input-wrapper">
+                    <input type="number" id="hauteur" value="250" placeholder="Ex: 250" inputmode="decimal" min="0" oninput="updateMeter('hauteur')">
+                    <span class="unit">cm</span>
+                </div>
+                <div id="m_hauteur" class="meter-text"></div>
+            </div>
+        </div>
+
+        <!-- MODULE 2 : ADHÉSIFS & CARREAUX -->
+        <div id="module-adhesif" class="hidden">
+            <div class="section-title">1. Plaque ou Carreau</div>
+            <div class="glass-box">
+                <div class="row">
+                    <div>
+                        <label>Hauteur</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="adhH" placeholder="Ex: 28.8" inputmode="decimal" min="0">
+                            <span class="unit">cm</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label>Largeur</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="adhL" placeholder="Ex: 29" inputmode="decimal" min="0">
+                            <span class="unit">cm</span>
+                        </div>
+                    </div>
+                </div>
+                <label>Pièces par paquet</label>
                 <div class="input-wrapper" style="margin-bottom:0;">
-                    <input type="number" id="moulureSurface" placeholder="Ex: 15" inputmode="decimal">
-                    <span class="unit">m&sup2;</span>
+                    <input type="number" id="adhPack" value="10" placeholder="Ex: 10" inputmode="decimal" min="0">
+                    <span class="unit">unités</span>
+                </div>
+            </div>
+
+            <div class="section-title">2. Surface à couvrir</div>
+            <div class="option-grid connected-mode" id="gridAdhSurface">
+                <div class="option-card active connected" onclick="selectAdhMode('adh_dim', this)">
+                    <svg viewBox="0 0 24 24" stroke-width="2.5"><rect x="3" y="5" width="18" height="14" rx="2" /><polyline points="3,12 6,9 6,15" stroke-opacity="0.5"/><polyline points="21,12 18,9 18,15" stroke-opacity="0.5"/><line x1="3" y1="12" x2="21" y2="12" stroke-opacity="0.5"/></svg>
+                    <span>Dimensions<br>(L x H)</span>
+                </div>
+                <div class="option-card" onclick="selectAdhMode('adh_m2', this)">
+                    <svg viewBox="0 0 24 24" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="3" y1="9" x2="21" y2="9" stroke-width="1.5" stroke-opacity="0.3"/><line x1="3" y1="15" x2="21" y2="15" stroke-width="1.5" stroke-opacity="0.3"/><line x1="9" y1="3" x2="9" y2="21" stroke-width="1.5" stroke-opacity="0.3"/><line x1="15" y1="3" x2="15" y2="21" stroke-width="1.5" stroke-opacity="0.3"/></svg>
+                    <span>Surface en<br>m&sup2;</span>
+                </div>
+            </div>
+            
+            <input type="hidden" id="modeAdhSurface" value="adh_dim">
+
+            <div id="zoneAdhSurface" class="dynamic-zone pos-left">
+                <div id="groupeAdhDim">
+                    <div class="row">
+                        <div>
+                            <label>Longueur</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="adhMurL" placeholder="Ex: 300" inputmode="decimal" min="0" oninput="updateMeter('adhMurL')">
+                                <span class="unit">cm</span>
+                            </div>
+                            <div id="m_adhMurL" class="meter-text"></div>
+                        </div>
+                        <div>
+                            <label>Hauteur</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="adhMurH" placeholder="Ex: 60" inputmode="decimal" min="0" oninput="updateMeter('adhMurH')">
+                                <span class="unit">cm</span>
+                            </div>
+                            <div id="m_adhMurH" class="meter-text"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="groupeAdhM2" class="hidden">
+                    <label>Surface totale</label>
+                    <div class="input-wrapper" style="margin-bottom:0;">
+                        <input type="number" id="adhSurface" placeholder="Ex: 3.5" inputmode="decimal" min="0">
+                        <span class="unit">m&sup2;</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- BOUTON GLOBAL -->
-    <button class="btn-calculer" onclick="calculerGlobal()">Calculer</button>
+        <!-- MODULE 3 : MOULURES & CIMAISES -->
+        <div id="module-moulure" class="hidden">
+            <div class="section-title">1. La Baguette</div>
+            <div class="glass-box">
+                <label>Longueur d'une moulure</label>
+                <div class="input-wrapper">
+                    <input type="number" id="moulureLong" value="200" placeholder="Ex: 200" inputmode="decimal" min="0" oninput="updateMeter('moulureLong')">
+                    <span class="unit">cm</span>
+                </div>
+                <div id="m_moulureLong" class="meter-text" style="margin-bottom: 0;"></div>
+            </div>
 
-    <div class="legal-link" onclick="ouvrirModal('legalModal')">Mentions légales &amp; Crédits</div>
+            <div class="section-title">2. Projet</div>
+            <div class="option-grid connected-mode" id="gridMoulureMode">
+                <div class="option-card active connected" onclick="selectMoulureMode('moulure_cadres', this)">
+                    <svg viewBox="0 0 24 24" stroke-width="2.5"><rect x="4" y="4" width="16" height="16" rx="1" /><rect x="8" y="8" width="8" height="8" rx="0.5" stroke-opacity="0.6" /></svg>
+                    <span>Encadrements<br>Décoratifs</span>
+                </div>
+                <div class="option-card" onclick="selectMoulureMode('moulure_lineaire', this)">
+                    <svg viewBox="0 0 24 24" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="8" x2="3" y2="16"/><line x1="21" y1="8" x2="21" y2="16"/></svg>
+                    <span>Longueur<br>Linéaire</span>
+                </div>
+                <div class="option-card" onclick="selectMoulureMode('moulure_m2', this)">
+                    <svg viewBox="0 0 24 24" stroke-width="2.5"><polygon points="2,14 12,9 12,2 2,7" stroke-width="1.5" stroke-opacity="0.3" /><polygon points="12,9 22,14 22,7 12,2" stroke-width="1.5" stroke-opacity="0.3" /><polygon points="2,14 12,21 22,14 12,9" /><line x1="7" y1="16.5" x2="17" y2="11.5" stroke-width="1.5" stroke-opacity="0.3" /><line x1="7" y1="11.5" x2="17" y2="16.5" stroke-width="1.5" stroke-opacity="0.3" /></svg>
+                    <span>Surface de<br>la pièce</span>
+                </div>
+            </div>
 
-    <!-- MENTIONS LÉGALES -->
+            <input type="hidden" id="modeMoulure" value="moulure_cadres">
+
+            <div id="zoneMoulure" class="dynamic-zone pos-left">
+                <div id="groupeMoulureCadres">
+                    <div class="row">
+                        <div>
+                            <label>Largeur cadre</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="cadreL" placeholder="Ex: 50" inputmode="decimal" min="0" oninput="updateMeter('cadreL')">
+                                <span class="unit">cm</span>
+                            </div>
+                            <div id="m_cadreL" class="meter-text"></div>
+                        </div>
+                        <div>
+                            <label>Hauteur cadre</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="cadreH" placeholder="Ex: 80" inputmode="decimal" min="0" oninput="updateMeter('cadreH')">
+                                <span class="unit">cm</span>
+                            </div>
+                            <div id="m_cadreH" class="meter-text"></div>
+                        </div>
+                    </div>
+                    <label>Quantité de cadres</label>
+                    <div class="input-wrapper" style="margin-bottom:0;">
+                        <input type="number" id="cadreQ" value="1" placeholder="Ex: 10" inputmode="decimal" min="0">
+                        <span class="unit">unités</span>
+                    </div>
+                </div>
+                
+                <div id="groupeMoulureLineaire" class="hidden">
+                    <label>Longueur linéaire totale</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="moulurePerimetre" placeholder="Ex: 1200" inputmode="decimal" min="0" oninput="updateMeter('moulurePerimetre')">
+                        <span class="unit">cm</span>
+                    </div>
+                    <div id="m_moulurePerimetre" class="meter-text" style="margin-bottom: 0;"></div>
+                </div>
+
+                <div id="groupeMoulureM2" class="hidden">
+                    <label>Surface au sol de la pièce</label>
+                    <div class="input-wrapper" style="margin-bottom:0;">
+                        <input type="number" id="moulureSurface" placeholder="Ex: 15" inputmode="decimal" min="0">
+                        <span class="unit">m&sup2;</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-calculer" onclick="calculerGlobal()">Calculer</button>
+        <div class="legal-link" onclick="ouvrirModal('legalModal')">Mentions légales &amp; Crédits</div>
+    </div> <!-- FIN APP CONTENT -->
+
+    <!-- MODAL LÉGALE -->
     <div id="legalModal" class="modal-overlay">
         <div class="modal-content legal-content">
             <button class="close-btn" onclick="fermerModal('legalModal')">&times;</button>
             <h3>Mentions Légales</h3>
-            
-            <p><strong>Éditeur de l'application</strong><br>
-            Philippe Roger<br>
-            Domicilié à Bordeaux, France.</p>
-            
-            <p><strong>Hébergement</strong><br>
-            Cette application web est hébergée gracieusement par la plateforme GitHub Pages.<br>
-            GitHub Inc.<br>
-            88 Colin P Kelly Jr St, San Francisco, CA 94107, États-Unis.</p>
-            
-            <p><strong>Propriété intellectuelle</strong><br>
-            L'ensemble de cette application, incluant sa structure, son code source, son interface graphique, ses animations ainsi que le tracé vectoriel des pictogrammes répondant aux standards de la signalétique en vigueur, a été conçu et développé avec l'assistance d'une intelligence artificielle. Cet outil numérique est expressément mis à disposition pour un usage interne opérationnel et logistique par l'équipe en magasin. Toute reproduction totale ou partielle non autorisée est strictement interdite.</p>
-            
-            <p><strong>Données personnelles (RGPD) &amp; Cookies</strong><br>
-            Le processus de calcul (dimensions, types de raccords, etc.) est intégralement réalisé localement sur l'appareil de l'utilisateur. Aucune donnée saisie dans les formulaires n'est collectée, sauvegardée ou transmise à un serveur distant.<br><br>
-            Néanmoins, à des fins de fiabilité technique et de suivi des performances, cette application intègre les services Google Analytics et Firebase (suivi des connexions simultanées en temps réel). Ces services tiers utilisent des cookies dits « techniques » nécessaires au comptage anonyme des visites et à l'amélioration de l'outil. En utilisant ce calculateur, vous consentez à l'utilisation de ces cookies.</p>
-            
-            <p><strong>Limitation de responsabilité</strong><br>
-            Les résultats de métrage générés par ce calculateur sont des estimations découlant de formules mathématiques standardisées. Elles sont fournies à titre strictement indicatif et prévisionnel. L'éditeur de l'application décline toute responsabilité concernant un éventuel défaut (manque) ou excès (surplus) de marchandise au moment de la réalisation de vos travaux. Il est vivement recommandé de systématiquement valider ces prévisions auprès d'un conseiller spécialisé en décoration avant toute procédure de commande.</p>
+            <p><strong>Éditeur de l'application</strong><br>Philippe Roger<br>Domicilié à Bordeaux, France.</p>
+            <p><strong>Hébergement</strong><br>Cette application web est hébergée gracieusement par la plateforme GitHub Pages.<br>GitHub Inc.<br>88 Colin P Kelly Jr St, San Francisco, CA 94107, États-Unis.</p>
+            <p><strong>Propriété intellectuelle</strong><br>L'ensemble de cette application, incluant sa structure, son code source, son interface graphique, ses animations ainsi que le tracé vectoriel des pictogrammes répondant aux standards de la signalétique en vigueur, a été conçu et développé avec l'assistance d'une intelligence artificielle. Cet outil numérique est expressément mis à disposition pour un usage interne opérationnel et logistique par l'équipe en magasin. Toute reproduction totale ou partielle non autorisée est strictement interdite.</p>
+            <p><strong>Données personnelles (RGPD) &amp; Cookies</strong><br>Le processus de calcul est intégralement réalisé localement sur l'appareil de l'utilisateur. Aucune donnée saisie dans les formulaires n'est collectée.<br><br>Néanmoins, à des fins de fiabilité technique et de sécurité, cette application intègre les services Google Analytics et Firebase (suivi des connexions et authentification par e-mail). Ces services tiers utilisent des cookies dits « techniques » nécessaires au bon fonctionnement de l'outil. L'adresse e-mail saisie pour la connexion est utilisée uniquement pour l'envoi du lien de sécurité. En utilisant ce calculateur, vous consentez à l'utilisation de ces mécanismes.</p>
+            <p><strong>Limitation de responsabilité</strong><br>Les résultats de métrage générés par ce calculateur sont des estimations découlant de formules mathématiques standardisées. Elles sont fournies à titre strictement indicatif et prévisionnel. L'éditeur de l'application décline toute responsabilité concernant un éventuel défaut (manque) ou excès (surplus) de marchandise au moment de la réalisation de vos travaux.</p>
         </div>
     </div>
 
@@ -577,15 +579,115 @@
         </div>
     </div>
 
+    <!-- SCRIPT PRINCIPAL -->
     <script>
-        let currentModule = 'papier'; 
+        // CONFIGURATION FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyDaMhLIBiEhYXSOp4QQ5wu8wjSDAu46B74",
+            authDomain: "calculateurpapier.firebaseapp.com",
+            databaseURL: "https://calculateurpapier-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "calculateurpapier",
+            storageBucket: "calculateurpapier.firebasestorage.app",
+            messagingSenderId: "454135770254",
+            appId: "1:454135770254:web:550213cddd77b429b7eddf",
+            measurementId: "G-2YLBXF5ZJJ"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-        // NAVIGATION PRINCIPALE
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        // DOMAINES ET EMAILS AUTORISÉS
+        const domainesAutorises = ['@leroymerlin.fr', '@xyra.fr'];
+        const emailPersoAutorise = 'votre.email@perso.com'; // À personnaliser si besoin
+
+        function verifierAccesUI(email) {
+            if (email === emailPersoAutorise) return true;
+            return domainesAutorises.some(domaine => email.endsWith(domaine));
+        }
+
+        // --- GESTION DE L'AUTHENTIFICATION ---
+        if (auth.isSignInWithEmailLink(window.location.href)) {
+            let email = window.localStorage.getItem('emailForSignIn');
+            if (!email) email = window.prompt('Veuillez confirmer votre e-mail pour finaliser la connexion.');
+            
+            auth.signInWithEmailLink(email, window.location.href)
+                .then((result) => {
+                    window.localStorage.removeItem('emailForSignIn');
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                })
+                .catch((error) => alert("Le lien de connexion a expiré ou n'est plus valide. Veuillez réessayer."));
+        }
+
+        auth.onAuthStateChanged((user) => {
+            const loginScreen = document.getElementById('login-screen');
+            const appContent = document.getElementById('app-content');
+            
+            if (user) {
+                loginScreen.classList.add('hidden');
+                appContent.classList.remove('hidden');
+                appContent.classList.add('visible');
+                activerCompteurEnLigne();
+            } else {
+                loginScreen.classList.remove('hidden');
+                appContent.classList.remove('visible');
+                setTimeout(() => appContent.classList.add('hidden'), 400);
+            }
+        });
+
+        function envoyerLienMagique() {
+            const inputEmail = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const messageDiv = document.getElementById('loginMessage');
+            
+            if (!inputEmail) return messageDiv.innerHTML = "<span style='color:#f87171;'>Veuillez saisir une adresse e-mail.</span>";
+            
+            if (!verifierAccesUI(inputEmail)) {
+                return messageDiv.innerHTML = "<span style='color:#f87171;'>Accès refusé. Domaine non autorisé.</span>";
+            }
+
+            messageDiv.innerHTML = "Envoi en cours...";
+
+            const actionCodeSettings = { url: window.location.href, handleCodeInApp: true };
+
+            auth.sendSignInLinkToEmail(inputEmail, actionCodeSettings)
+                .then(() => {
+                    window.localStorage.setItem('emailForSignIn', inputEmail);
+                    window.localStorage.setItem('savedUserEmail', inputEmail); // Mémorisation de l'email
+                    messageDiv.innerHTML = "Lien envoyé !<br>Vérifiez votre boîte de réception (et vos spams).<br>Vous pouvez fermer cette page.";
+                })
+                .catch((error) => {
+                    messageDiv.innerHTML = "<span style='color:#f87171;'>Erreur lors de l'envoi. Vérifiez votre configuration Firebase.</span>";
+                });
+        }
+
+        function seDeconnecter() { auth.signOut(); }
+
+        // --- GESTION DU COMPTEUR EN LIGNE ---
+        function activerCompteurEnLigne() {
+            try {
+                const connectionsRef = db.ref('visiteurs_actifs');
+                const connectedRef = db.ref('.info/connected');
+
+                connectedRef.on('value', (snap) => {
+                    if (snap.val() === true) {
+                        const con = connectionsRef.push();
+                        con.onDisconnect().remove(); con.set(true);
+                    }
+                });
+
+                connectionsRef.on('value', (snap) => {
+                    const count = snap.numChildren();
+                    document.getElementById('onlineCount').innerText = count + ' en ligne';
+                });
+            } catch (error) { document.getElementById('onlineCount').innerText = "1 en ligne"; }
+        }
+
+        // --- NAVIGATION PRINCIPALE ---
+        let currentModule = 'papier'; 
         function switchMainTab(moduleName, element) {
             currentModule = moduleName;
             document.querySelectorAll('#mainNavigation .option-card').forEach(tab => tab.classList.remove('active'));
             element.classList.add('active');
-
             ['papier', 'adhesif', 'moulure'].forEach(mod => document.getElementById(`module-${mod}`).classList.add('hidden'));
             document.getElementById(`module-${moduleName}`).classList.remove('hidden');
         }
@@ -593,7 +695,7 @@
         function updateMeter(inputId) {
             const val = parseFloat(document.getElementById(inputId).value);
             const el = document.getElementById('m_' + inputId);
-            if (el) el.innerHTML = !isNaN(val) ? `soit ${(val / 100).toString().replace('.', ',')} m` : '';
+            if (el) el.innerHTML = !isNaN(val) && val >= 0 ? `soit ${(val / 100).toString().replace('.', ',')} m` : '';
         }
 
         function ouvrirModal(id) { document.getElementById(id).classList.add('active'); }
@@ -602,7 +704,7 @@
             overlay.addEventListener('click', function(event) { if (event.target === this) this.classList.remove('active'); });
         });
 
-        // ONGLETS PAPIER PEINT
+        // --- LOGIQUE DES ONGLETS ---
         function selectRaccord(type, element) {
             document.getElementById('typeRaccord').value = type;
             const grid = document.getElementById('gridRaccord');
@@ -615,20 +717,13 @@
             document.getElementById('groupeRaccordSaute').classList.add('hidden');
             zone.classList.remove('pos-left', 'pos-right');
             
-            if (type === 'sans') {
-                zone.classList.add('hidden');
-                grid.classList.remove('connected-mode');
-            } else {
-                zone.classList.remove('hidden');
-                element.classList.add('connected');
-                grid.classList.add('connected-mode');
-                
+            if (type === 'sans') { zone.classList.add('hidden'); grid.classList.remove('connected-mode'); } 
+            else {
+                zone.classList.remove('hidden'); element.classList.add('connected'); grid.classList.add('connected-mode');
                 if (type === 'simple') document.getElementById('groupeRaccordSimple').classList.remove('hidden');
                 if (type === 'saute') document.getElementById('groupeRaccordSaute').classList.remove('hidden');
-                
                 const index = Array.from(cards).indexOf(element);
-                if (index === 0) zone.classList.add('pos-left');
-                if (index === cards.length - 1) zone.classList.add('pos-right');
+                if (index === 0) zone.classList.add('pos-left'); if (index === cards.length - 1) zone.classList.add('pos-right');
             }
         }
 
@@ -651,19 +746,16 @@
             if (mode === 'mur_m2') document.getElementById('groupeMurM2').classList.remove('hidden');
             
             const index = Array.from(cards).indexOf(element);
-            if (index === 0) zone.classList.add('pos-left');
-            if (index === cards.length - 1) zone.classList.add('pos-right');
+            if (index === 0) zone.classList.add('pos-left'); if (index === cards.length - 1) zone.classList.add('pos-right');
         }
 
-        // ONGLETS ADHÉSIFS
         function selectAdhMode(mode, element) {
             document.getElementById('modeAdhSurface').value = mode;
             const cards = document.querySelectorAll('#gridAdhSurface .option-card');
             const zone = document.getElementById('zoneAdhSurface');
             
             cards.forEach(card => card.classList.remove('active', 'connected'));
-            element.classList.add('active', 'connected'); 
-            zone.classList.remove('pos-left', 'pos-right');
+            element.classList.add('active', 'connected'); zone.classList.remove('pos-left', 'pos-right');
             
             document.getElementById('groupeAdhDim').classList.add('hidden');
             document.getElementById('groupeAdhM2').classList.add('hidden');
@@ -671,19 +763,16 @@
             if (mode === 'adh_dim') document.getElementById('groupeAdhDim').classList.remove('hidden');
             if (mode === 'adh_m2') document.getElementById('groupeAdhM2').classList.remove('hidden');
             
-            const index = Array.from(cards).indexOf(element);
-            zone.classList.add(index === 0 ? 'pos-left' : 'pos-right');
+            zone.classList.add(Array.from(cards).indexOf(element) === 0 ? 'pos-left' : 'pos-right');
         }
 
-        // ONGLETS MOULURES
         function selectMoulureMode(mode, element) {
             document.getElementById('modeMoulure').value = mode;
             const cards = document.querySelectorAll('#gridMoulureMode .option-card');
             const zone = document.getElementById('zoneMoulure');
             
             cards.forEach(card => card.classList.remove('active', 'connected'));
-            element.classList.add('active', 'connected'); 
-            zone.classList.remove('pos-left', 'pos-right');
+            element.classList.add('active', 'connected'); zone.classList.remove('pos-left', 'pos-right');
             
             document.getElementById('groupeMoulureCadres').classList.add('hidden');
             document.getElementById('groupeMoulureLineaire').classList.add('hidden');
@@ -694,11 +783,10 @@
             if (mode === 'moulure_m2') document.getElementById('groupeMoulureM2').classList.remove('hidden');
             
             const index = Array.from(cards).indexOf(element);
-            if (index === 0) zone.classList.add('pos-left');
-            else if (index === cards.length - 1) zone.classList.add('pos-right');
+            if (index === 0) zone.classList.add('pos-left'); else if (index === cards.length - 1) zone.classList.add('pos-right');
         }
 
-        // CALCULS
+        // --- CALCULS ---
         function calculerGlobal() {
             if (currentModule === 'papier') return calculerPapier();
             if (currentModule === 'adhesif') return calculerAdhesif();
@@ -708,26 +796,26 @@
         function calculerPapier() {
             const rouleauLong = parseFloat(document.getElementById('rouleauLong').value);
             const rouleauLarg = parseFloat(document.getElementById('rouleauLarg').value);
-            if (!rouleauLong || !rouleauLarg) return alert("Vérifiez les dimensions du rouleau.");
+            if (!rouleauLong || !rouleauLarg || rouleauLong <= 0 || rouleauLarg <= 0) return alert("Vérifiez les dimensions du rouleau.");
 
             const mode = document.getElementById('modeCalcul').value;
             const h_cm = parseFloat(document.getElementById('hauteur').value);
-            if (!h_cm) return alert("Indiquez la hauteur du mur.");
+            if (!h_cm || h_cm <= 0) return alert("Indiquez une hauteur valide.");
             
             let perimetre_cm = 0;
             if (mode === 'mur_dim') {
                 const longMur = parseFloat(document.getElementById('longueurMur').value);
-                if (!longMur) return alert("Indiquez la longueur.");
+                if (!longMur || longMur <= 0) return alert("Indiquez une longueur valide.");
                 perimetre_cm = longMur;
             } else if (mode === 'piece_m2') {
                 const surfPieceStr = document.getElementById('surfacePiece').value.replace(',', '.');
                 const surfPiece = parseFloat(surfPieceStr);
-                if (!surfPiece) return alert("Indiquez la surface de la pièce.");
+                if (!surfPiece || surfPiece <= 0) return alert("Indiquez une surface valide.");
                 perimetre_cm = Math.sqrt(surfPiece) * 4 * 100;
             } else if (mode === 'mur_m2') {
                 const surfMurStr = document.getElementById('surfaceMur').value.replace(',', '.');
                 const surfMur = parseFloat(surfMurStr);
-                if (!surfMur) return alert("Indiquez la surface du mur.");
+                if (!surfMur || surfMur <= 0) return alert("Indiquez une surface valide.");
                 perimetre_cm = (surfMur * 10000) / h_cm;
             }
 
@@ -736,12 +824,12 @@
 
             if (typeRaccord === 'simple') {
                 const motif = parseFloat(document.getElementById('motifSimple').value);
-                if (!motif) return alert("Indiquez la taille du motif.");
+                if (!motif || motif <= 0) return alert("Indiquez la taille du motif.");
                 hauteurUtile = Math.ceil(hauteurUtile / motif) * motif;
             } else if (typeRaccord === 'saute') {
                 const motif = parseFloat(document.getElementById('motifSaute').value);
                 const saut = parseFloat(document.getElementById('saut').value);
-                if (!motif || !saut) return alert("Indiquez le motif et le saut.");
+                if (!motif || !saut || motif <= 0 || saut <= 0) return alert("Indiquez le motif et le saut.");
                 hauteurUtile = Math.max(Math.ceil(hauteurUtile / motif) * motif, Math.ceil((hauteurUtile + saut) / motif) * motif);
             }
 
@@ -761,8 +849,8 @@
             const l = parseFloat(document.getElementById('adhL').value);
             const pack = parseFloat(document.getElementById('adhPack').value);
             
-            if (!h || !l) return alert("Vérifiez les dimensions de la plaque.");
-            if (!pack) return alert("Indiquez le nombre de pièces par paquet.");
+            if (!h || !l || h <= 0 || l <= 0) return alert("Vérifiez les dimensions de la plaque.");
+            if (!pack || pack <= 0) return alert("Indiquez le nombre de pièces par paquet.");
 
             const modeAdh = document.getElementById('modeAdhSurface').value;
             let surface = 0;
@@ -770,11 +858,11 @@
             if (modeAdh === 'adh_m2') {
                 const surfaceStr = document.getElementById('adhSurface').value.replace(',', '.');
                 surface = parseFloat(surfaceStr);
-                if (!surface) return alert("Indiquez la surface totale à couvrir en m².");
+                if (!surface || surface <= 0) return alert("Indiquez une surface totale valide.");
             } else if (modeAdh === 'adh_dim') {
                 const murL = parseFloat(document.getElementById('adhMurL').value);
                 const murH = parseFloat(document.getElementById('adhMurH').value);
-                if (!murL || !murH) return alert("Vérifiez la longueur et la hauteur de la surface.");
+                if (!murL || !murH || murL <= 0 || murH <= 0) return alert("Vérifiez la longueur et la hauteur.");
                 surface = (murL * murH) / 10000; 
             }
 
@@ -793,24 +881,24 @@
 
         function calculerMoulure() {
             const mLong = parseFloat(document.getElementById('moulureLong').value);
-            if (!mLong) return alert("Indiquez la longueur d'une moulure.");
+            if (!mLong || mLong <= 0) return alert("Indiquez la longueur d'une moulure.");
 
             const modeMoulure = document.getElementById('modeMoulure').value;
             let mPeri = 0;
 
             if (modeMoulure === 'moulure_lineaire') {
                 mPeri = parseFloat(document.getElementById('moulurePerimetre').value);
-                if (!mPeri) return alert("Indiquez le périmètre ou la longueur linéaire totale.");
+                if (!mPeri || mPeri <= 0) return alert("Indiquez le périmètre ou la longueur linéaire totale.");
             } else if (modeMoulure === 'moulure_cadres') {
                 const cL = parseFloat(document.getElementById('cadreL').value);
                 const cH = parseFloat(document.getElementById('cadreH').value);
                 const cQ = parseFloat(document.getElementById('cadreQ').value);
-                if (!cL || !cH || !cQ) return alert("Vérifiez les dimensions et la quantité des encadrements.");
+                if (!cL || !cH || !cQ || cL <= 0 || cH <= 0 || cQ <= 0) return alert("Vérifiez les dimensions et la quantité.");
                 mPeri = ((cL + cH) * 2) * cQ;
             } else if (modeMoulure === 'moulure_m2') {
                 const surfPieceStr = document.getElementById('moulureSurface').value.replace(',', '.');
                 const surfPiece = parseFloat(surfPieceStr);
-                if (!surfPiece) return alert("Indiquez la surface de la pièce.");
+                if (!surfPiece || surfPiece <= 0) return alert("Indiquez la surface de la pièce.");
                 mPeri = Math.sqrt(surfPiece) * 4 * 100;
             }
 
@@ -823,6 +911,13 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+            // Pré-remplissage de l'e-mail sauvegardé si existant
+            const savedEmail = window.localStorage.getItem('savedUserEmail');
+            if(savedEmail) {
+                const emailInput = document.getElementById('loginEmail');
+                if(emailInput) emailInput.value = savedEmail;
+            }
+
             ['rouleauLong', 'rouleauLarg', 'motifSimple', 'motifSaute', 'saut', 'hauteur', 'longueurMur', 
              'moulureLong', 'moulurePerimetre', 'adhMurL', 'adhMurH', 'cadreL', 'cadreH'].forEach(updateMeter);
         });
