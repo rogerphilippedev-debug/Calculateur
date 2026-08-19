@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.firebasedatabase.app wss://*.firebasedatabase.app;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.firebasedatabase.app wss://*.firebasedatabase.app https://*.europe-west1.firebasedatabase.app wss://*.europe-west1.firebasedatabase.app;">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='k' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2310b981' /%3E%3Cstop offset='100%25' stop-color='%23047857' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='5' y='5' width='110' height='110' rx='30' fill='url(%23k)' stroke='rgba(255,255,255,0.3)' stroke-width='2' /%3E%3Cg stroke-linecap='round'%3E%3Cpath d='M 32 32 L 32 88' stroke='rgba(255,255,255,0.4)' stroke-width='10' /%3E%3Cpath d='M 50 32 L 50 88' stroke='%23FFFFFF' stroke-width='12' /%3E%3Cpath d='M 50 60 L 82 32' stroke='%23FFFFFF' stroke-width='12' /%3E%3Cpath d='M 62 49 L 84 88' stroke='rgba(255,255,255,0.8)' stroke-width='12' /%3E%3C/g%3E%3C/svg%3E">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-EWZC0MGCNY"></script>
     <script>
@@ -16,7 +16,7 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0A1128">
+    <meta name="theme-color" content="#545454">
     <title>Kover - Outil de calcul de revêtements muraux</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -66,24 +66,43 @@
         .login-box h3 { margin: 0 0 10px 0; font-size: 1.5rem; color: #FFF; }
         .login-box p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 24px; }
         
-        /* CLASSES SPÉCIFIQUES POUR LE FORMULAIRE DE CONNEXION */
+        .login-input {
+            padding: 16px !important; 
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+        }
+        .btn-auth {
+            margin-bottom: 0 !important; 
+            margin-top: 10px !important;
+            padding: 14px !important;
+            background: #10b981 !important;
+            border-color: #059669 !important;
+        }
+        .btn-auth:hover { background: #059669 !important; }
+        
+        .link-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 0.75rem;
+        }
+        .link-switch {
+            color: rgba(255,255,255,0.6);
+            text-decoration: underline;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .link-switch:hover { color: #FFFFFF; }
+
         .login-message { 
             margin-top: 16px; 
             font-size: 0.85rem; 
             font-weight: 500; 
             color: #10b981; 
             line-height: 1.5;
-        }
-        .login-input {
-            padding: 16px !important; 
-            text-align: center;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .login-btn {
-            margin-bottom: 0 !important; 
-            margin-top: 10px !important;
-            padding: 14px !important;
+            min-height: 20px;
         }
 
         /* CONTENU DE L'APP */
@@ -105,9 +124,7 @@
         .pulse-dot { width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); } 70% { transform: scale(1); box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
 
-        /* Correction de la marge du haut pour éviter que les boutons absolus ne chevauchent le logo */
         .app-header { display: flex; align-items: center; justify-content: center; gap: 20px; margin: 60px 0 30px 0; }
-        
         .app-logo { width: 90px; height: 90px; filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.4)); }
         .header-text { display: flex; flex-direction: column; justify-content: center; text-align: left; }
         h2 { margin: 0; font-size: 1.8rem; font-weight: 700; color: #FFFFFF; letter-spacing: 0.5px; line-height: 1.1; }
@@ -209,10 +226,21 @@
         <div class="login-box">
             <h3>Bienvenue</h3>
             <p>Espace réservé à l'équipe magasin.</p>
+            
             <div class="input-wrapper">
-                <input type="email" id="loginEmail" class="login-input" placeholder="Votre e-mail professionnel">
+                <input type="email" id="loginEmail" class="login-input" placeholder="E-mail professionnel">
             </div>
-            <button class="btn-calculer login-btn" onclick="envoyerLienMagique()">Recevoir l'accès</button>
+            <div class="input-wrapper">
+                <input type="password" id="loginPwd" class="login-input" placeholder="Mot de passe">
+            </div>
+            
+            <button class="btn-calculer btn-auth" onclick="actionConnexion()">Se connecter</button>
+            
+            <div class="link-container">
+                <span class="link-switch" onclick="actionInscription()">Créer un compte</span>
+                <span class="link-switch" onclick="motDePasseOublie()">Mot de passe oublié ?</span>
+            </div>
+            
             <div id="loginMessage" class="login-message"></div>
         </div>
     </div>
@@ -596,90 +624,158 @@
 
         const auth = firebase.auth();
         const db = firebase.database();
+        
+        let userConnectionRef = null;
+        let isCounterListening = false;
 
-        // DOMAINES ET EMAILS AUTORISÉS
+        // DOMAINES ET EMAILS AUTORISÉS (Mis à jour avec votre email dev)
         const domainesAutorises = ['@leroymerlin.fr', '@xyra.fr'];
-        const emailPersoAutorise = 'votre.email@perso.com'; // À personnaliser si besoin
+        const emailPersoAutorise = 'roger.philippe.dev@gmail.com'; 
 
         function verifierAccesUI(email) {
-            if (email === emailPersoAutorise) return true;
-            return domainesAutorises.some(domaine => email.endsWith(domaine));
+            if (!email) return false;
+            const emailLower = email.toLowerCase();
+            if (emailLower === emailPersoAutorise.toLowerCase()) return true;
+            return domainesAutorises.some(domaine => emailLower.endsWith(domaine));
         }
 
-        // --- GESTION DE L'AUTHENTIFICATION ---
-        if (auth.isSignInWithEmailLink(window.location.href)) {
-            let email = window.localStorage.getItem('emailForSignIn');
-            if (!email) email = window.prompt('Veuillez confirmer votre e-mail pour finaliser la connexion.');
+        // --- GESTION CONNEXION EMAIL / MOT DE PASSE ---
+        function actionConnexion() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pwd = document.getElementById('loginPwd').value;
+            const messageDiv = document.getElementById('loginMessage');
             
-            auth.signInWithEmailLink(email, window.location.href)
-                .then((result) => {
-                    window.localStorage.removeItem('emailForSignIn');
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                })
-                .catch((error) => alert("Le lien de connexion a expiré ou n'est plus valide. Veuillez réessayer."));
+            if(!email || !pwd) {
+                return messageDiv.innerHTML = "<span style='color:#f87171;'>Veuillez remplir tous les champs.</span>";
+            }
+            if(!verifierAccesUI(email)) {
+                return messageDiv.innerHTML = "<span style='color:#f87171;'>Accès refusé. Domaine non autorisé.</span>";
+            }
+
+            messageDiv.innerHTML = "Connexion en cours...";
+            
+            auth.signInWithEmailAndPassword(email, pwd)
+                .catch((error) => {
+                    messageDiv.innerHTML = `<span style='color:#f87171;'>Erreur : E-mail ou mot de passe incorrect.</span>`;
+                });
         }
 
+        function actionInscription() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pwd = document.getElementById('loginPwd').value;
+            const messageDiv = document.getElementById('loginMessage');
+            
+            if(!email || !pwd) {
+                return messageDiv.innerHTML = "<span style='color:#f87171;'>Remplissez les champs pour créer un compte.</span>";
+            }
+            if(!verifierAccesUI(email)) {
+                return messageDiv.innerHTML = "<span style='color:#f87171;'>Accès refusé. Domaine non autorisé.</span>";
+            }
+            if(pwd.length < 6) {
+                return messageDiv.innerHTML = "<span style='color:#f87171;'>Le mot de passe doit faire au moins 6 caractères.</span>";
+            }
+
+            messageDiv.innerHTML = "Création du compte...";
+            
+            auth.createUserWithEmailAndPassword(email, pwd)
+                .catch((error) => {
+                    if (error.code === 'auth/email-already-in-use') {
+                        messageDiv.innerHTML = "<span style='color:#f87171;'>Ce compte existe déjà. Veuillez cliquer sur 'Se connecter'.</span>";
+                    } else {
+                        messageDiv.innerHTML = `<span style='color:#f87171;'>Erreur de création : ${error.message}</span>`;
+                    }
+                });
+        }
+
+        function motDePasseOublie() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const messageDiv = document.getElementById('loginMessage');
+            
+            if(!email) {
+                return messageDiv.innerHTML = "<span style='color:#f87171;'>Veuillez d'abord saisir votre e-mail ci-dessus.</span>";
+            }
+            if(!verifierAccesUI(email)) {
+                return messageDiv.innerHTML = "<span style='color:#f87171;'>Accès refusé. Domaine non autorisé.</span>";
+            }
+
+            messageDiv.innerHTML = "Envoi de l'e-mail de réinitialisation...";
+            
+            auth.sendPasswordResetEmail(email)
+                .then(() => {
+                    messageDiv.innerHTML = "<span style='color:#10b981;'>E-mail envoyé ! Vérifiez votre boîte de réception.</span>";
+                })
+                .catch((error) => {
+                    messageDiv.innerHTML = `<span style='color:#f87171;'>Erreur : Aucun compte associé à cet e-mail.</span>`;
+                });
+        }
+
+        function seDeconnecter() { 
+            auth.signOut(); 
+        }
+
+        // --- GESTION DES ÉTATS DE CONNEXION ---
         auth.onAuthStateChanged((user) => {
             const loginScreen = document.getElementById('login-screen');
             const appContent = document.getElementById('app-content');
+            const messageDiv = document.getElementById('loginMessage');
             
             if (user) {
-                loginScreen.classList.add('hidden');
-                appContent.classList.remove('hidden');
-                appContent.classList.add('visible');
-                activerCompteurEnLigne();
+                if (verifierAccesUI(user.email)) {
+                    loginScreen.classList.add('hidden');
+                    appContent.classList.remove('hidden');
+                    appContent.classList.add('visible');
+                    activerCompteurEnLigne();
+                    if(messageDiv) messageDiv.innerHTML = "";
+                    window.localStorage.setItem('savedUserEmail', user.email);
+                } else {
+                    auth.signOut();
+                    if(messageDiv) messageDiv.innerHTML = `<span style='color:#f87171;'>Accès refusé.<br>Le domaine n'est pas autorisé.</span>`;
+                }
             } else {
+                // NETTOYAGE DU COMPTEUR À LA DÉCONNEXION
+                if (userConnectionRef) {
+                    userConnectionRef.remove();
+                    userConnectionRef = null;
+                }
+                isCounterListening = false;
+                
                 loginScreen.classList.remove('hidden');
                 appContent.classList.remove('visible');
                 setTimeout(() => appContent.classList.add('hidden'), 400);
             }
         });
 
-        function envoyerLienMagique() {
-            const inputEmail = document.getElementById('loginEmail').value.trim().toLowerCase();
-            const messageDiv = document.getElementById('loginMessage');
-            
-            if (!inputEmail) return messageDiv.innerHTML = "<span style='color:#f87171;'>Veuillez saisir une adresse e-mail.</span>";
-            
-            if (!verifierAccesUI(inputEmail)) {
-                return messageDiv.innerHTML = "<span style='color:#f87171;'>Accès refusé. Domaine non autorisé.</span>";
-            }
-
-            messageDiv.innerHTML = "Envoi en cours...";
-
-            const actionCodeSettings = { url: window.location.href, handleCodeInApp: true };
-
-            auth.sendSignInLinkToEmail(inputEmail, actionCodeSettings)
-                .then(() => {
-                    window.localStorage.setItem('emailForSignIn', inputEmail);
-                    window.localStorage.setItem('savedUserEmail', inputEmail); // Mémorisation de l'email
-                    messageDiv.innerHTML = "Lien envoyé !<br>Vérifiez votre boîte de réception (et vos spams).<br>Vous pouvez fermer cette page.";
-                })
-                .catch((error) => {
-                    messageDiv.innerHTML = "<span style='color:#f87171;'>Erreur lors de l'envoi. Vérifiez votre configuration Firebase.</span>";
-                });
-        }
-
-        function seDeconnecter() { auth.signOut(); }
-
-        // --- GESTION DU COMPTEUR EN LIGNE ---
+        // --- GESTION DU COMPTEUR EN LIGNE (Avec détection d'erreurs DB) ---
         function activerCompteurEnLigne() {
             try {
                 const connectionsRef = db.ref('visiteurs_actifs');
                 const connectedRef = db.ref('.info/connected');
 
-                connectedRef.on('value', (snap) => {
-                    if (snap.val() === true) {
-                        const con = connectionsRef.push();
-                        con.onDisconnect().remove(); con.set(true);
-                    }
-                });
+                if (!userConnectionRef) {
+                    connectedRef.on('value', (snap) => {
+                        if (snap.val() === true) {
+                            userConnectionRef = connectionsRef.push();
+                            userConnectionRef.onDisconnect().remove(); 
+                            userConnectionRef.set(true).catch(error => {
+                                console.error("Écriture bloquée par les règles :", error);
+                            });
+                        }
+                    });
+                }
 
-                connectionsRef.on('value', (snap) => {
-                    const count = snap.numChildren();
-                    document.getElementById('onlineCount').innerText = count + ' en ligne';
-                });
-            } catch (error) { document.getElementById('onlineCount').innerText = "1 en ligne"; }
+                if (!isCounterListening) {
+                    connectionsRef.on('value', (snap) => {
+                        const count = snap.numChildren();
+                        document.getElementById('onlineCount').innerText = count + ' en ligne';
+                    }, (error) => {
+                        document.getElementById('onlineCount').innerText = "Accès refusé DB";
+                        console.error("Lecture bloquée par les règles :", error);
+                    });
+                    isCounterListening = true;
+                }
+            } catch (error) { 
+                document.getElementById('onlineCount').innerText = "1 en ligne"; 
+            }
         }
 
         // --- NAVIGATION PRINCIPALE ---
@@ -911,7 +1007,6 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            // Pré-remplissage de l'e-mail sauvegardé si existant
             const savedEmail = window.localStorage.getItem('savedUserEmail');
             if(savedEmail) {
                 const emailInput = document.getElementById('loginEmail');
